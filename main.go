@@ -653,9 +653,9 @@ func main() {
 	http.HandleFunc("/api/qr", getQRHandler)
 	http.HandleFunc("/api/qr/upload", uploadQRHandler)
 
-	fmt.Println("Server běží na http://localhost:5000")
+	fmt.Println("Server běží na http://localhost:6000")
 	go timerLoop()
-	log.Fatal(http.ListenAndServe(":5000", nil))
+	log.Fatal(http.ListenAndServe(":6000", nil))
 }
 
 // vrátí aktuální stav
