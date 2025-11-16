@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tabule</title>
+  <link rel="stylesheet" href="style.css">
+  </head>
+<body>
+  <div id="layout-split" class="split">
+    <div class="split-stage">
+      <div class="split-team split-left">
+        <img id="split-homeLogo" class="split-logo" alt="" src="">
+        <div id="split-homeName" class="split-name">Domácí</div>
+        <div class="split-fouls" id="split-home-fouls">
+          <span class="foul-dot"></span>
+          <span class="foul-dot"></span>
+          <span class="foul-dot"></span>
+          <span class="foul-dot"></span>
+          <span class="foul-dot"></span>
+        </div>
+      </div>
+      <div class="split-center">
+        <div id="split-time" class="split-time">00:00</div>
+        <div class="split-score"><span id="split-homeScore">0</span><span class="split-sep">-</span><span id="split-awayScore">0</span></div>
+      </div>
+      <div class="split-team split-right">
+        <img id="split-awayLogo" class="split-logo" alt="" src="">
+        <div id="split-awayName" class="split-name">Hosté</div>
+        <div class="split-fouls" id="split-away-fouls">
+          <span class="foul-dot"></span>
+          <span class="foul-dot"></span>
+          <span class="foul-dot"></span>
+          <span class="foul-dot"></span>
+          <span class="foul-dot"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sponsors bar at bottom -->
+  <div id="sponsors-bar" class="sponsors-bar hidden">
+    <div class="sponsors-viewport">
+      <div id="sponsors-track" class="sponsors-track"></div>
+    </div>
+  </div>
+
+  <script>
+    const paintFouls = (elId, count) => {
+      const dots = document.querySelectorAll(`#${elId} .foul-dot`);
+      dots.forEach((d,i)=>{
+        if (i < (count||0)) d.classList.add('active'); else d.classList.remove('active');
+      });
+    };
+
+    // Load sponsors and build marquee bar
+    async function loadSponsorsBar() {
+      try {
+        const res = await fetch('/api/sponsors');
+        if (!res.ok) throw new Error('bad');
+        const list = await res.json();
+        const bar = document.getElementById('sponsors-bar');
+        const track = document.getElementById('sponsors-track');
+        track.innerHTML = '';
+        if (!Array.isArray(list) || list.length === 0) {
+          bar.classList.add('hidden');
+          return;
+        }
+        // Build two copies for seamless scroll
+        const buildRow = () => {
+          const frag = document.createDocumentFragment();
+          for (const url of list) {
+            const item = document.createElement('div');
+            item.className = 'sponsor-item';
+            const img = document.createElement('img');
+            img.loading = 'eager';
+            img.decoding = 'async';
+            img.src = url;
+            img.alt = '';
+            item.appendChild(img);
+            frag.appendChild(item);
+          }
+          return frag;
+        };
+        track.appendChild(buildRow());
+        track.appendChild(buildRow());
+        bar.classList.remove('hidden');
+        // restart animation
+        track.classList.remove('run');
+        void track.offsetWidth;
+        track.classList.add('run');
+      } catch (e) {
+        // hide on failure
+        const bar = document.getElementById('sponsors-bar');
+        if (bar) bar.classList.add('hidden');
+      }
+    }
+
+    // initial and periodic refresh
+    loadSponsorsBar();
+    setInterval(loadSponsorsBar, 60000);
+
+    const evtSource = new EventSource("/api/stream");
+    evtSource.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+
+      // base colors from backend
+      // We'll remap them to left/right below for visual flip
+      if (data.primaryColor) {
+        document.documentElement.style.setProperty('--home-color', data.primaryColor);
+        document.documentElement.style.setProperty('--home-dark', data.primaryColor);
+        document.documentElement.style.setProperty('--home-light', data.primaryColor);
+      }
+      if (data.secondaryColor) {
+        document.documentElement.style.setProperty('--away-color', data.secondaryColor);
+        document.documentElement.style.setProperty('--away-dark', data.secondaryColor);
+        document.documentElement.style.setProperty('--away-light', data.secondaryColor);
+      }
+
+      const homeShort = data.homeShort || (data.homeName ? data.homeName.slice(0,3).toUpperCase() : 'DOM');
+      const awayShort = data.awayShort || (data.awayName ? data.awayName.slice(0,3).toUpperCase() : 'HOS');
+      const timer = data.timer;
+      // sides flipping disabled: home is always on the left
+      const cHome = data.primaryColor || '#2c3e50';
+      const cAway = data.secondaryColor || '#34495e';
+      const leftShort = homeShort;
+      const rightShort = awayShort;
+      const leftLogo = data.homeLogo;
+      const rightLogo = data.awayLogo;
+      const leftColor = cHome;
+      const rightColor = cAway;
+      const leftScore = data.homeScore;
+      const rightScore = data.awayScore;
+      const homeFouls = Number(data.homeFouls||0);
+      const awayFouls = Number(data.awayFouls||0);
+      const scoreCombined = `${leftScore}-${rightScore}`;
+
+      // Remap pill CSS variables to left/right colors when flipped
+      // so that left segment color always matches left team
+      document.documentElement.style.setProperty('--home-color', leftColor);
+      document.documentElement.style.setProperty('--home-dark', leftColor);
+      document.documentElement.style.setProperty('--home-light', leftColor);
+      document.documentElement.style.setProperty('--away-color', rightColor);
+      document.documentElement.style.setProperty('--away-dark', rightColor);
+      document.documentElement.style.setProperty('--away-light', rightColor);
+
+      document.getElementById('split-homeName').innerText = (data.homeName || 'Domácí');
+      document.getElementById('split-awayName').innerText = (data.awayName || 'Hosté');
+      document.getElementById('split-homeScore').innerText = leftScore;
+      document.getElementById('split-awayScore').innerText = rightScore;
+      document.getElementById('split-time').innerText = timer;
+      const shl = document.getElementById('split-homeLogo');
+      const sal = document.getElementById('split-awayLogo');
+      if (shl && leftLogo) shl.src = leftLogo; else if (shl) shl.removeAttribute('src');
+      if (sal && rightLogo) sal.src = rightLogo; else if (sal) sal.removeAttribute('src');
+      paintFouls('split-home-fouls', Math.max(0, Math.min(5, homeFouls)));
+      paintFouls('split-away-fouls', Math.max(0, Math.min(5, awayFouls)));
+
+      // ensure split layout is visible (single style)
+      const split = document.getElementById('layout-split');
+      if (split) split.classList.remove('hidden');
+    };
+  </script>
+</body>
+</html>

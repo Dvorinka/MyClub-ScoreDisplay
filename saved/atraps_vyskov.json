@@ -1,0 +1,22 @@
+{
+  "homeName": "FC Atraps",
+  "homeLogo": "https://loga.sportcreative.eu/api/logos/aa9da4e7-be0d-4a31-9911-ae858b2731e2",
+  "homeScore": 0,
+  "awayName": "SK Amor Vyškov",
+  "awayLogo": "https://loga.sportcreative.eu/api/logos/0bd228c7-4c9c-4cdc-96d1-105b60a5fff1",
+  "awayScore": 0,
+  "homeFouls": 0,
+  "awayFouls": 0,
+  "timer": "00:00",
+  "running": false,
+  "halfLength": 20,
+  "theme": "split",
+  "homeShort": "BIZ",
+  "awayShort": "SKA",
+  "primaryColor": "#e51010",
+  "secondaryColor": "#176baf",
+  "sidesFlipped": false,
+  "half": 1,
+  "qrEvery": 0,
+  "qrDuration": 0
+}

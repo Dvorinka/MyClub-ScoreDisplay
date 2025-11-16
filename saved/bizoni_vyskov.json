@@ -1,0 +1,22 @@
+{
+  "homeName": "FC Bizoni UH",
+  "homeLogo": "https://logoapi.sportcreative.eu/logos/441d3783-06aa-436a-b438-359300ee0371",
+  "homeScore": 0,
+  "awayName": "SK Amor Vyškov",
+  "awayLogo": "https://loga.sportcreative.eu/api/logos/0bd228c7-4c9c-4cdc-96d1-105b60a5fff1",
+  "awayScore": 0,
+  "homeFouls": 0,
+  "awayFouls": 0,
+  "timer": "00:00",
+  "running": false,
+  "halfLength": 20,
+  "theme": "split",
+  "homeShort": "BIZ",
+  "awayShort": "SKA",
+  "primaryColor": "#d33e3d",
+  "secondaryColor": "#1d71b3",
+  "sidesFlipped": false,
+  "half": 1,
+  "qrEvery": 0,
+  "qrDuration": 0
+}
