@@ -517,7 +517,7 @@ func averageHex(img image.Image) string {
 	stepX := 1
 	stepY := 1
 	// aim up to ~160k samples
-	for (w/stepX)*(h/stepY) > 160000 {
+	for (w/stepX)*(h/stepY) > 155550 {
 		if stepX <= stepY {
 			stepX *= 2
 		} else {
@@ -653,9 +653,9 @@ func main() {
 	http.HandleFunc("/api/qr", getQRHandler)
 	http.HandleFunc("/api/qr/upload", uploadQRHandler)
 
-	fmt.Println("Server běží na http://localhost:6000")
+	fmt.Println("Server běží na http://localhost:5555")
 	go timerLoop()
-	log.Fatal(http.ListenAndServe(":6000", nil))
+	log.Fatal(http.ListenAndServe(":5555", nil))
 }
 
 // vrátí aktuální stav
